@@ -103,6 +103,17 @@ def get_polar_radius(planet_name: str) -> str:
 
     return match.group("radius")
 
+def get_species_name(organic_name: str) -> str:
+    """Gets the species of the given plant/animal
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(organic_name)))
+    #print(infobox_text)
+    pattern = r"Species:\n(?P<species>.+)"
+    error_text = "Page infobox has no polar radius information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("species")
+
 
 def get_birth_date(name: str) -> str:
     """Gets birth date of the given person
@@ -151,6 +162,9 @@ def polar_radius(matches: List[str]) -> List[str]:
     """
     return [get_polar_radius(matches[0])]
 
+def species_name(matches: List[str]) -> List[str]:
+    return [get_species_name(matches[0])]
+
 
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
@@ -167,6 +181,7 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
+    ("what is the species name of %".split(), species_name),
     (["bye"], bye_action),
 ]
 
