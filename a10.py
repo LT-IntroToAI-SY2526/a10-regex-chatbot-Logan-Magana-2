@@ -108,12 +108,22 @@ def get_species_name(organic_name: str) -> str:
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(organic_name)))
     #print(infobox_text)
-    pattern = r"Species:\n(?P<species>.+)"
+    pattern = r"Species:\n(?P<species>[^\n]+)"
     error_text = "Page infobox has no polar radius information"
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("species")
 
+def get_death_date(d_name: str) -> str:
+    """Gets the death date of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(d_name)))
+    print(infobox_text)
+    pattern = r"(?:Died\D*)(?P<d_day>\d{4}-\d{2}-\d{2})"
+    error_text = "Page infobox has no polar radius information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("death")
 
 def get_birth_date(name: str) -> str:
     """Gets birth date of the given person
@@ -165,6 +175,9 @@ def polar_radius(matches: List[str]) -> List[str]:
 def species_name(matches: List[str]) -> List[str]:
     return [get_species_name(matches[0])]
 
+def death_date(matches: List[str]) -> List[str]:
+    return [get_death_date(matches[0])]
+
 
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
@@ -182,6 +195,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
     ("what is the species name of %".split(), species_name),
+    ("when did % pass".split(), death_date),
     (["bye"], bye_action),
 ]
 
