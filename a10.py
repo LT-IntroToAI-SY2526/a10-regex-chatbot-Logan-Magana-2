@@ -8,17 +8,24 @@ from typing import List, Callable, Tuple, Any, Match
 
 def get_page_html(title: str) -> str:
     for attempt in range(5):
-        response = requests.get(
-            "https://en.wikipedia.org/w/api.php",
-            params={
-                "action": "parse",
-                "page": title,
-                "prop": "text",
-                "format": "json",
-                "redirects": True,
-            },
-            headers={"User-Agent": "intro-ai-class/1.0"}
-        )
+        try:
+            response = requests.get(
+                "https://en.wikipedia.org/w/api.php",
+                params={
+                    "action": "parse",
+                    "page": title,
+                    "prop": "text",
+                    "format": "json",
+                    "redirects": True,
+                },
+                headers={"User-Agent": "intro-ai-class/1.0"},
+                timeout=10
+            )
+        except requests.exceptions.ConnectTimeout:
+            print(f"Connection timed out, retrying '{title}'... (attempt {attempt+1}/5)")
+            time.sleep(5)
+            continue
+
         if response.status_code == 429:
             wait = int(response.headers.get("Retry-After", 5))
             print(f"Rate limited — waiting {wait}s before retrying '{title}'...")
@@ -27,8 +34,9 @@ def get_page_html(title: str) -> str:
         if response.status_code == 200 and response.text.strip():
             data = response.json()
             if "error" not in data:
-                time.sleep(2)  # polite delay after every successful call
+                time.sleep(3)
                 return data["parse"]["text"]["*"]
+
     raise ConnectionError(f"Could not retrieve Wikipedia page for '{title}' after 5 attempts")
 
 
@@ -118,12 +126,21 @@ def get_death_date(d_name: str) -> str:
     """Gets the death date of the given person
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(d_name)))
-    print(infobox_text)
-    pattern = r"(?:Died\D*)(?P<d_day>\d{4}-\d{2}-\d{2})"
-    error_text = "Page infobox has no polar radius information"
+    #print(infobox_text)
+    pattern = r"Died.*?\((?P<death>\d{4}-\d{2}-\d{2})\)"
+    error_text = "Page infobox has no death information"
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("death")
+
+def get_num_pres(pres_numbs: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(pres_numbs)))
+    print(infobox_text)
+    pattern = r"(\d{1,2})(?:st|nd|th|rd)\s+President"
+    error_text = "Page infobox has no num information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("number")
 
 def get_birth_date(name: str) -> str:
     """Gets birth date of the given person
@@ -175,8 +192,11 @@ def polar_radius(matches: List[str]) -> List[str]:
 def species_name(matches: List[str]) -> List[str]:
     return [get_species_name(matches[0])]
 
+def num_pres(matches: List[str]) -> List[str]:
+    return [get_num_pres(matches[0])]
+
 def death_date(matches: List[str]) -> List[str]:
-    return [get_death_date(matches[0])]
+    return [get_death_date(" ".join(matches))]
 
 
 # dummy argument is ignored and doesn't matter
@@ -195,6 +215,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
     ("what is the species name of %".split(), species_name),
+    ("what is the number president of %".split(), num_pres),
     ("when did % pass".split(), death_date),
     (["bye"], bye_action),
 ]
