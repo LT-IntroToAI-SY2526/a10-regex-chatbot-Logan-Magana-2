@@ -133,14 +133,16 @@ def get_death_date(d_name: str) -> str:
 
     return match.group("death")
 
-def get_num_pres(pres_numbs: str) -> str:
-    infobox_text = clean_text(get_first_infobox_text(get_page_html(pres_numbs)))
-    print(infobox_text)
-    pattern = r"(\d{1,2})(?:st|nd|th|rd)\s+President"
+def get_language(of_language: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(of_language)))
+    #print(infobox_text)
+    pattern = r"(?:language|languages)(?P<language>[A-Z][a-z]+?)(?=[A-Z])"
     error_text = "Page infobox has no num information"
     match = get_match(infobox_text, pattern, error_text)
 
-    return match.group("number")
+    return match.group("language")
+
+
 
 def get_birth_date(name: str) -> str:
     """Gets birth date of the given person
@@ -195,6 +197,9 @@ def species_name(matches: List[str]) -> List[str]:
 def num_pres(matches: List[str]) -> List[str]:
     return [get_num_pres(matches[0])]
 
+def official_language(matches: List[str]) -> List[str]:
+    return [get_language(matches[0])]
+
 def death_date(matches: List[str]) -> List[str]:
     return [get_death_date(" ".join(matches))]
 
@@ -215,8 +220,9 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
     ("what is the species name of %".split(), species_name),
-    ("what is the number president of %".split(), num_pres),
+    ("what number president is %".split(), num_pres),
     ("when did % pass".split(), death_date),
+    ("what is the official language of %".split(), official_language),
     (["bye"], bye_action),
 ]
 
