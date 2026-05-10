@@ -136,13 +136,20 @@ def get_death_date(d_name: str) -> str:
 def get_language(of_language: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(of_language)))
     #print(infobox_text)
-    pattern = r"(?:language|languages)(?P<language>[A-Z][a-z]+?)(?=[A-Z])"
+    pattern = r"(?:language|languages)(?P<language>[A-Z][a-z]+?)(?=[A-Z][a-z])"
     error_text = "Page infobox has no num information"
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("language")
 
+def get_currency_name(currency: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(currency)))
+    #print(infobox_text)
+    pattern = r"Currency(?P<money>[\w. ]+)"
+    error_text = "Page infobox has no num information"
+    match = get_match(infobox_text, pattern, error_text)
 
+    return match.group("money")
 
 def get_birth_date(name: str) -> str:
     """Gets birth date of the given person
@@ -200,6 +207,9 @@ def num_pres(matches: List[str]) -> List[str]:
 def official_language(matches: List[str]) -> List[str]:
     return [get_language(matches[0])]
 
+def currency_name(matches: List[str]) -> List[str]:
+    return [get_currency_name(matches[0])]
+
 def death_date(matches: List[str]) -> List[str]:
     return [get_death_date(" ".join(matches))]
 
@@ -223,6 +233,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what number president is %".split(), num_pres),
     ("when did % pass".split(), death_date),
     ("what is the official language of %".split(), official_language),
+    ("what is the currency of %".split(), currency_name),
     (["bye"], bye_action),
 ]
 
