@@ -135,8 +135,8 @@ def get_death_date(d_name: str) -> str:
 
 def get_language(of_language: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(of_language)))
-    #print(infobox_text)
-    pattern = r"(?:language|languages)(?P<language>[A-Z][a-z]+?)(?=[A-Z][a-z])"
+    print(infobox_text)
+    pattern = r"(?:languages|language)(?P<language>[A-Za-z]+?)(?=Other|\[|Recognized)"
     error_text = "Page infobox has no num information"
     match = get_match(infobox_text, pattern, error_text)
 
