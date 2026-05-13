@@ -122,6 +122,26 @@ def get_species_name(organic_name: str) -> str:
 
     return match.group("species")
 
+def get_num_pres(pres_numbs: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(pres_numbs)))
+    print(repr(infobox_text))
+    pattern = r"(?:\d{4})?(?P<number>\d+(?:st|nd|rd|th))\s+President"
+    error_text = "Page infobox has no num information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("number")
+
+def get_motto_name(mott_name: str) -> str:
+    """Gets the species of the given plant/animal
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(mott_name)))
+    print(infobox_text)
+    pattern = r""
+    error_text = "Page infobox has no motto information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("motto")
+
 def get_death_date(d_name: str) -> str:
     """Gets the death date of the given person
     """
