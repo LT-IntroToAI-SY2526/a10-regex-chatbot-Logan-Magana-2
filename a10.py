@@ -115,8 +115,8 @@ def get_species_name(organic_name: str) -> str:
     """Gets the species of the given plant/animal
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(organic_name)))
-    print(infobox_text)
-    pattern = r"Species:\n(?P<species>[^\n]+)"
+    #print(infobox_text)
+    pattern = r"(?:Species:|species)\s*\n\s*(?P<species>[^\n]+)"
     error_text = "Page infobox has no polar radius information"
     match = get_match(infobox_text, pattern, error_text)
 
@@ -124,7 +124,7 @@ def get_species_name(organic_name: str) -> str:
 
 def get_num_pres(pres_numbs: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(pres_numbs)))
-    print(infobox_text)
+    #print(infobox_text)
     pattern = r"(?:\d{4})(?:-\d{2})?(?P<number>\d+(?:st|nd|rd|th))\s+President"
     error_text = "Page infobox has no num information"
     match = get_match(infobox_text, pattern, error_text)
