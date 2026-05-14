@@ -131,16 +131,16 @@ def get_num_pres(pres_numbs: str) -> str:
 
     return match.group("number")
 
-def get_motto_name(mott_name: str) -> str:
+def get_anthem_name(anth_name: str) -> str:
     """Gets the motto of the given country
     """
-    infobox_text = clean_text(get_first_infobox_text(get_page_html(mott_name)))
-    print(infobox_text)
-    pattern = r""
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(anth_name)))
+    #print(infobox_text)
+    pattern = r"(?:Anthem:)\s*\"(?P<anthem>[^\n]+)\""
     error_text = "Page infobox has no motto information"
     match = get_match(infobox_text, pattern, error_text)
 
-    return match.group("motto")
+    return match.group("anthem")
 
 def get_death_date(d_name: str) -> str:
     """Gets the death date of the given person
@@ -230,6 +230,9 @@ def official_language(matches: List[str]) -> List[str]:
 def currency_name(matches: List[str]) -> List[str]:
     return [get_currency_name(matches[0])]
 
+def anthem_name(matches: List[str]) -> List[str]:
+    return [get_anthem_name(matches[0])]
+
 def death_date(matches: List[str]) -> List[str]:
     return [get_death_date(" ".join(matches))]
 
@@ -253,6 +256,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what number president is %".split(), num_pres),
     ("when did % pass".split(), death_date),
     ("what is the official language of %".split(), official_language),
+    ("what is the national anthem of %".split(), anthem_name),
     ("what is the currency of %".split(), currency_name),
     (["bye"], bye_action),
 ]
