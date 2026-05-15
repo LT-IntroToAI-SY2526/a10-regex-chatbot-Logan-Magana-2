@@ -189,6 +189,25 @@ def get_birth_date(name: str) -> str:
 
     return match.group("birth")
 
+def get_occupation_name(job: str) -> str:
+    """Gets birth date of the given person
+
+    Args:
+        name - name of the person
+
+    Returns:
+        birth date of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(job)))
+    print(infobox_text)
+    pattern = r"(?:Occupations|Occupation)\s*(?P<occupation>\w+)Years"
+    error_text = (
+        "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("occupation")
+
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
@@ -236,6 +255,9 @@ def anthem_name(matches: List[str]) -> List[str]:
 def death_date(matches: List[str]) -> List[str]:
     return [get_death_date(" ".join(matches))]
 
+def occupation_name(matches: List[str]) -> List[str]:
+    return [get_occupation_name(matches[0])]
+
 
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
@@ -258,6 +280,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what is the official language of %".split(), official_language),
     ("what is the national anthem of %".split(), anthem_name),
     ("what is the currency of %".split(), currency_name),
+    ("what is the occ of %".split(), occupation_name),
     (["bye"], bye_action),
 ]
 
